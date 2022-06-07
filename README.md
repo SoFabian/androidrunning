@@ -16,14 +16,6 @@ This is for everybody who wants a simple app not containing any marketing, coach
 ## Installation hint
 File 'local.properties' must contain key 'MAPS_API_KEY' with your Google Maps API Key as value.
 
-## Screenshots
-![Home menu](/screenshots/0HomeMenu.jpg?raw=true "Home menu")
-![Live run](/screenshots/1LiveRun.jpg?raw=true "Live run")
-![Live interval](/screenshots/1LiveInterval.jpg?raw=true "Live interval")
-![History](/screenshots/2History.jpg?raw=true "History")
-![History run](/screenshots/2HistoryRun.jpg?raw=true "History run")
-![History intervals](/screenshots/2HistoryIntervals.jpg?raw=true "History intervals")
-
 ## Technical background
 - Kotlin
 - Jetpack Compose
@@ -38,3 +30,11 @@ File 'local.properties' must contain key 'MAPS_API_KEY' with your Google Maps AP
 
 ## Alternatives
 - RunnerUp
+
+## Screenshots
+![Home menu](/screenshots/0HomeMenu.jpg?raw=true "Home menu")
+![Live run](/screenshots/1LiveRun.jpg?raw=true "Live run")
+![Live interval](/screenshots/1LiveInterval.jpg?raw=true "Live interval")
+![History](/screenshots/2History.jpg?raw=true "History")
+![History run](/screenshots/2HistoryRun.jpg?raw=true "History run")
+![History intervals](/screenshots/2HistoryIntervals.jpg?raw=true "History intervals")
