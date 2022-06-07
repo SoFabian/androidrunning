@@ -22,7 +22,7 @@ File 'local.properties' must contain key 'MAPS_API_KEY' with your Google Maps AP
 ![Live interval](/screenshots/1LiveInterval.jpg?raw=true "Live interval")
 ![History](/screenshots/2History.jpg?raw=true "History")
 ![History run](/screenshots/2HistoryRun.jpg?raw=true "History run")
-![History interval](/screenshots/2HistoryInterval.jpg?raw=true "History interval")
+![History intervals](/screenshots/2HistoryIntervals.jpg?raw=true "History intervals")
 
 ## Technical background
 - Kotlin
