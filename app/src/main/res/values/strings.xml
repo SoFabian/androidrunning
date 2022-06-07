@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">NerdRunning</string>
+    <string name="text_latitude">lat</string>
+    <string name="text_longitude">long</string>
+    <string name="text_accuracy">acc. in m</string>
+    <string name="text_speed">m/s</string>
+    <string name="text_speedAccuracy">speed acc. in m/s</string>
+    <string name="text_altitude">m altitude</string>
+    <string name="text_altitudeUp">m up</string>
+    <string name="text_altitudeDown">m down</string>
+    <string name="text_distance">m</string>
+    <string name="text_livePace">min/km</string>
+    <string name="text_kmPace">min/km</string>
+    <string name="text_meanPace">\u00f8 min/km</string>
+    <string name="text_intervalPace">min/interval</string>
+    <string name="text_liveHeartRate">bpm</string>
+    <string name="text_meanHeartRate">\u00f8 bpm</string>
+    <string name="text_tabRunMainInfo">Overall</string>
+    <string name="text_tabInterval">Interval</string>
+    <string name="text_tabMap">Map</string>
+    <string name="text_meter">m</string>
+    <string name="text_minute">min</string>
+    <string name="text_second">sec</string>
+    <string name="text_startInterval">Start interval</string>
+</resources>
