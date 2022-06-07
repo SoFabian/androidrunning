@@ -25,12 +25,6 @@ File 'local.properties' must contain key 'MAPS_API_KEY' with your Google Maps AP
 - com.juul.kable (for BLE)
 - Google Maps
 
-## Disadvantages
-- Open for any recommandations to design and colors
-
-## Alternatives
-- RunnerUp
-
 ## Screenshots
 ![Home menu](/screenshots/0HomeMenu.jpg?raw=true "Home menu")
 ![Live run](/screenshots/1LiveRun.jpg?raw=true "Live run")
@@ -38,3 +32,9 @@ File 'local.properties' must contain key 'MAPS_API_KEY' with your Google Maps AP
 ![History](/screenshots/2History.jpg?raw=true "History")
 ![History run](/screenshots/2HistoryRun.jpg?raw=true "History run")
 ![History intervals](/screenshots/2HistoryIntervals.jpg?raw=true "History intervals")
+
+## Disadvantages
+- Open for any recommandations to design and colors
+
+## Alternatives
+- RunnerUp
