@@ -41,4 +41,4 @@ File 'local.properties' must contain key 'MAPS_API_KEY' with your Google Maps AP
 
 ## Changelog
 
-# v2 05.08.2022
+- v2 05.08.2022
