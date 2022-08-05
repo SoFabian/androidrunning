@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.ticker
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combineTransform
@@ -19,6 +20,7 @@ class LiveRunFlow(
     locationFlow: Flow<Location>,
     private val heartRateMonitor: HeartRateMonitor,
     intervalRequestFlow: Flow<IntervalTarget>,
+    intervalTargetReachedFlow: MutableSharedFlow<Int>,
     scope: CoroutineScope,
 ) {
     companion object {
@@ -44,12 +46,16 @@ class LiveRunFlow(
             } else {
                 _liveRun.value
             }
+        val currentIntervalsSize = currentRun.intervals.size
         val nextRun =
             if (t < START_COUNTDOWN) {
                 LiveRun(tick = t)
             } else {
                 currentRun.addLocation(t, location, hr, intervalTarget)
             }
+        if (currentIntervalsSize != nextRun.intervals.size) {
+            intervalTargetReachedFlow.tryEmit(nextRun.intervals.size)
+        }
         if (currentRun.tick != nextRun.tick) {
             emit(nextRun)
         }

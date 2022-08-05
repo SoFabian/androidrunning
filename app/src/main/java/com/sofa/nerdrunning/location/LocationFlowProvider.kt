@@ -9,6 +9,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.sofa.nerdrunning.log.logDebug
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
@@ -30,10 +31,12 @@ class LocationFlowProvider @Inject constructor(
     fun FusedLocationProviderClient.locationFlow() = callbackFlow {
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-                try {
-                    trySend(locationResult.lastLocation)
-                } catch (e: Exception) {
-                    Log.e("Location", "Exception sending location.", e)
+                locationResult.lastLocation?.let {
+                    try {
+                        trySend(it)
+                    } catch (e: Exception) {
+                        Log.e("Location", "Exception sending location.", e)
+                    }
                 }
             }
         }
@@ -52,7 +55,7 @@ class LocationFlowProvider @Inject constructor(
         val locationRequest: LocationRequest = LocationRequest.create().apply {
             interval = 1000
             fastestInterval = 1000
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            priority = Priority.PRIORITY_HIGH_ACCURACY
         }
     }
 }

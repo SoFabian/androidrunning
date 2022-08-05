@@ -34,7 +34,11 @@ File 'local.properties' must contain key 'MAPS_API_KEY' with your Google Maps AP
 ![History intervals](/screenshots/2HistoryIntervals.jpg?raw=true "History intervals")
 
 ## Disadvantages
-- Open for any recommandations to design and colors
+- Design and colors ?
 
 ## Alternatives
 - RunnerUp
+
+## Changelog
+
+# v2 05.08.2022

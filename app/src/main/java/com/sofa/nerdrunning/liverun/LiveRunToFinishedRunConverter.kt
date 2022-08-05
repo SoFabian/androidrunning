@@ -33,7 +33,7 @@ fun LiveRun.finish(): FinishedRun {
         distance = distance,
         meanPace = meanPace,
         hasHeartRate = hasHeartRate,
-        meanHeartRate = meanHeartRate,
+        meanHeartRate = if (hasHeartRate) meanHeartRate else -1,
         altitudeUp = altitudeUpDown.metresUp.toInt(),
         altitudeDown = altitudeUpDown.metresDown.toInt(),
         intervals = finishedIntervals,
@@ -65,18 +65,20 @@ private fun LiveRun.locationsOfInterval(
     .takeWhile { loc -> liveInterval.end == null || loc.timestamp < liveInterval.end.timestamp }
 
 private fun computeAltitudeUpDown(locations: List<RunLocation>): AltitudeUpDown =
-    locations.foldIndexed(AltitudeUpDown()) { index, acc, location ->
-        if (index == 0) {
-            acc
-        } else {
-            val diff = location.altitude.minus(locations[index - 1].altitude)
-            when {
-                diff > 0 -> acc.copy(metresUp = acc.metresUp + diff)
-                diff < 0 -> acc.copy(metresDown = acc.metresDown + diff)
-                else -> acc
+    locations.map(RunLocation::altitude)
+        .chunked(10).map(Iterable<Double>::average)
+        .foldIndexed(AltitudeUpDown()) { index, acc, altitude ->
+            if (index == 0) {
+                acc
+            } else {
+                val diff = altitude.minus(locations[index - 1].altitude)
+                when {
+                    diff > 0 -> acc.copy(metresUp = acc.metresUp + diff)
+                    diff < 0 -> acc.copy(metresDown = acc.metresDown + diff)
+                    else -> acc
+                }
             }
         }
-    }
 
 private fun computeAltitudeUpDownFromIntervals(intervals: List<FinishedRunInterval>): AltitudeUpDown =
     intervals.fold(AltitudeUpDown()) { acc, interval ->

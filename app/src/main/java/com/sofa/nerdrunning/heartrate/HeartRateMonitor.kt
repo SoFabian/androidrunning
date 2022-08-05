@@ -112,17 +112,19 @@ private fun extractHR(data: ByteArray): Int =
             0
         }
         isUInt8(data) -> {
-            data[1].toInt()
+            toInt(data[1])
         }
         else -> {
             convertToInt(data[2], data[1])
         }
     }
 
-private fun isUInt8(hr: ByteArray): Boolean = hr[0].and(1).toInt() == 0
+private fun isUInt8(hr: ByteArray): Boolean = toInt(hr[0]) and 1 == 0
 
 private fun convertToInt(msb: Byte, lsb: Byte): Int =
-    msb.toInt().and(0xff).shl(8).or(lsb.toInt().and(0xff))
+    (toInt(msb) shl 8) or toInt(lsb)
+
+private fun toInt(b: Byte): Int = b.toInt().and(0xff)
 
 /**
  * Exponential backoff using the following formula:

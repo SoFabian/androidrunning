@@ -16,7 +16,7 @@ data class LiveRun(
     val distance: Int = 0,
     val lastAddedDistance: Int = 0,
 
-    val hasHeartRate: Boolean = true,
+    val hasHeartRate: Boolean = false,
 
     val meanPace: Duration = Duration.ZERO,
     val meanHeartRate: Int = 75,

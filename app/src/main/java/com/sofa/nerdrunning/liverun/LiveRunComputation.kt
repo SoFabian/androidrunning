@@ -67,7 +67,7 @@ fun LiveRun.addLocation(
         lastAddedDistance = distanceToAdd,
         meanPace = newMeanPace,
         livePace = newLivePace,
-        hasHeartRate = hr > 0,
+        hasHeartRate = hasHeartRate || hr > 0,
         meanHeartRate = newMeanHeartRate,
         liveHeartRate = hr,
         currentInterval = newCurrentInterval,

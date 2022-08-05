@@ -8,6 +8,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import android.os.VibrationEffect
+import android.os.Vibrator
 import com.sofa.nerdrunning.R
 import com.sofa.nerdrunning.finishedrun.FinishedRun
 import com.sofa.nerdrunning.images.StaticMapsImageRetriever
@@ -17,8 +19,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -43,6 +47,19 @@ class LiveRunService : Service() {
 
     private val started = AtomicBoolean()
 
+    private val vibrator by lazy {
+//        should work but does not
+//        val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+//        vibratorManager.defaultVibrator
+        getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    }
+    private val intervalTargetReachedFlow by lazy {
+        MutableSharedFlow<Int>(
+            replay = 1,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST
+        )
+    }
+
     override fun onCreate() {
         super.onCreate()
         logDebug("LiveRunService", "onCreate")
@@ -62,16 +79,32 @@ class LiveRunService : Service() {
         }
         if (command == INTENT_COMMAND_START && started.compareAndSet(false, true)) {
             logDebug("LiveRunService", "create flow")
-            liveRunFlow =
-                liveRunFlowProvider.createFlow(intervalRequestFlow.asStateFlow(), serviceScope)
+            collectIntervalTargetReachedFlow()
+            liveRunFlow = liveRunFlowProvider.createFlow(
+                intervalRequestFlow.asSharedFlow(),
+                intervalTargetReachedFlow,
+                serviceScope
+            )
         }
         showNotification()
         return START_STICKY
     }
 
+    private fun collectIntervalTargetReachedFlow() {
+        serviceScope.launch {
+            intervalTargetReachedFlow.collectLatest { vibrate() }
+        }
+    }
+
+    private fun vibrate() {
+        logDebug("LiveRunService", "Vibrate")
+        vibrator.vibrate(VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE))
+    }
+
     private fun stopService() {
         logDebug("LiveRunService", "stop")
         serviceJob.cancel()
+        vibrator.cancel()
         stopForeground(true)
         stopSelf()
     }
@@ -110,10 +143,17 @@ class LiveRunService : Service() {
     /** method for clients  */
 
     lateinit var liveRunFlow: LiveRunFlow
-    private val intervalRequestFlow = MutableStateFlow(IntervalTarget())
+    private val intervalRequestFlow by lazy {
+        val flow = MutableSharedFlow<IntervalTarget>(
+            replay = 1,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST
+        )
+        flow.tryEmit(IntervalTarget())
+        flow
+    }
 
     fun intervalRequest(nextIntervalTarget: IntervalTarget) {
-        intervalRequestFlow.value = nextIntervalTarget
+        intervalRequestFlow.tryEmit(nextIntervalTarget)
     }
 
     fun finish(): FinishedRun {
