@@ -83,7 +83,6 @@ data class LocationEntity(
     val latitude: Double,
     val longitude: Double,
     val accuracy: Float,
-    val altitude: Double,
     val speed: Float,
     val speedAccuracy: Float,
 )

@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 1,
-    "identityHash": "6637a3c054690b19fb3f3ad55ed5959c",
+    "version": 2,
+    "identityHash": "5aa5407f5299580fb939c7491ad7dda8",
     "entities": [
       {
         "tableName": "Run",
@@ -74,7 +74,7 @@
       },
       {
         "tableName": "RunInterval",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `runId` INTEGER NOT NULL, `startDistanceInRun` INTEGER NOT NULL, `distance` INTEGER NOT NULL, `duration` TEXT NOT NULL, `kmPace` TEXT NOT NULL, `meanHeartRate` INTEGER NOT NULL, `altitudeUp` INTEGER NOT NULL, `altitudeDown` INTEGER NOT NULL, `start_timestamp` TEXT NOT NULL, `start_latitude` REAL NOT NULL, `start_longitude` REAL NOT NULL, `start_accuracy` REAL NOT NULL, `start_altitude` REAL NOT NULL, `start_speed` REAL NOT NULL, `start_speedAccuracy` REAL NOT NULL, `end_timestamp` TEXT NOT NULL, `end_latitude` REAL NOT NULL, `end_longitude` REAL NOT NULL, `end_accuracy` REAL NOT NULL, `end_altitude` REAL NOT NULL, `end_speed` REAL NOT NULL, `end_speedAccuracy` REAL NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `runId` INTEGER NOT NULL, `startDistanceInRun` INTEGER NOT NULL, `distance` INTEGER NOT NULL, `duration` TEXT NOT NULL, `kmPace` TEXT NOT NULL, `meanHeartRate` INTEGER NOT NULL, `altitudeUp` INTEGER NOT NULL, `altitudeDown` INTEGER NOT NULL, `start_timestamp` TEXT NOT NULL, `start_latitude` REAL NOT NULL, `start_longitude` REAL NOT NULL, `start_accuracy` REAL NOT NULL, `start_speed` REAL NOT NULL, `start_speedAccuracy` REAL NOT NULL, `end_timestamp` TEXT NOT NULL, `end_latitude` REAL NOT NULL, `end_longitude` REAL NOT NULL, `end_accuracy` REAL NOT NULL, `end_speed` REAL NOT NULL, `end_speedAccuracy` REAL NOT NULL, FOREIGN KEY(`runId`) REFERENCES `Run`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -155,12 +155,6 @@
             "notNull": true
           },
           {
-            "fieldPath": "start.altitude",
-            "columnName": "start_altitude",
-            "affinity": "REAL",
-            "notNull": true
-          },
-          {
             "fieldPath": "start.speed",
             "columnName": "start_speed",
             "affinity": "REAL",
@@ -197,12 +191,6 @@
             "notNull": true
           },
           {
-            "fieldPath": "end.altitude",
-            "columnName": "end_altitude",
-            "affinity": "REAL",
-            "notNull": true
-          },
-          {
             "fieldPath": "end.speed",
             "columnName": "end_speed",
             "affinity": "REAL",
@@ -221,12 +209,34 @@
           ],
           "autoGenerate": true
         },
-        "indices": [],
-        "foreignKeys": []
+        "indices": [
+          {
+            "name": "index_RunInterval_runId",
+            "unique": false,
+            "columnNames": [
+              "runId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_RunInterval_runId` ON `${TABLE_NAME}` (`runId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Run",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "runId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       },
       {
         "tableName": "Coordinate",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `runId` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `runId` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, FOREIGN KEY(`runId`) REFERENCES `Run`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -259,14 +269,84 @@
           ],
           "autoGenerate": true
         },
-        "indices": [],
-        "foreignKeys": []
+        "indices": [
+          {
+            "name": "index_Coordinate_runId",
+            "unique": false,
+            "columnNames": [
+              "runId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Coordinate_runId` ON `${TABLE_NAME}` (`runId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Run",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "runId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "StaticMapsImage",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`runId` INTEGER NOT NULL, `image` BLOB NOT NULL, PRIMARY KEY(`runId`), FOREIGN KEY(`runId`) REFERENCES `Run`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "runId",
+            "columnName": "runId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "image",
+            "columnName": "image",
+            "affinity": "BLOB",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "runId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_StaticMapsImage_runId",
+            "unique": false,
+            "columnNames": [
+              "runId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_StaticMapsImage_runId` ON `${TABLE_NAME}` (`runId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Run",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "runId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6637a3c054690b19fb3f3ad55ed5959c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5aa5407f5299580fb939c7491ad7dda8')"
     ]
   }
 }

@@ -41,7 +41,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import com.sofa.nerdrunning.R
 import com.sofa.nerdrunning.confirmation.ConfirmDialog
-import com.sofa.nerdrunning.finishedrun.FinishedRun
 import com.sofa.nerdrunning.finishedrun.FinishedRunScreen
 import com.sofa.nerdrunning.formats.format
 import com.sofa.nerdrunning.loading.LoadingItem
@@ -63,7 +62,7 @@ fun LiveRunView(
         onDispose { vm.unbindLiveRun() }
     }
     val bound by vm.liveRunServiceBoundFlow.collectAsState(false)
-    var finishedRun: FinishedRun? by remember { mutableStateOf(null) }
+    val finishedRun by vm.finishedRunFlow.collectAsState()
     if (finishedRun != null) {
         finishedRun?.let {
             FinishedRunScreen(it) {
@@ -79,11 +78,7 @@ fun LiveRunView(
                 navigation.goBackToHome()
             }
         } else {
-            RunScreen(run, {
-                finishedRun = vm.finishLiveRun()
-            }) {
-                vm.intervalRequest(it)
-            }
+            RunScreen(run, vm::finishLiveRun, vm::intervalRequest)
         }
     } else {
         LoadingItem()
@@ -302,7 +297,9 @@ fun IntervalTab(run: LiveRun, nextInterval: ((IntervalTarget) -> Unit)? = null) 
             CurrentInterval(run.currentInterval)
         }
         if (nextInterval != null) {
-            Box(modifier = Modifier.wrapContentSize(Alignment.BottomStart).padding(5.dp)) {
+            Box(modifier = Modifier
+                .wrapContentSize(Alignment.BottomStart)
+                .padding(5.dp)) {
                 var expanded by remember { mutableStateOf(false) }
                 Button(onClick = { expanded = true }, Modifier.padding(5.dp)) {
                     Text(

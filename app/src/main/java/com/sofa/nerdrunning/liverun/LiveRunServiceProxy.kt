@@ -54,19 +54,22 @@ class LiveRunServiceProxy @Inject constructor(
         }
     }
 
-    fun finish(): FinishedRun {
-        if (_boundFlow.value) {
-            _boundFlow.value = false
-            return liveRunService.finish()
+    fun finish(finishedCallback: (FinishedRun) -> Unit) {
+        if (!_boundFlow.value) {
+            logDebug("LiveRunServiceProxy", "Cannot finish as service not bound.")
+            return
         }
-        return FinishedRun()
+        liveRunService.finish(finishedCallback)
+        _boundFlow.value = false
     }
 
     fun cancel() {
-        if (_boundFlow.value) {
-            _boundFlow.value = false
-            liveRunService.cancel()
+        if (!_boundFlow.value) {
+            logDebug("LiveRunServiceProxy", "Cannot cancel as service not bound.")
+            return
         }
+        liveRunService.cancel()
+        _boundFlow.value = false
     }
 
     fun unbind() {

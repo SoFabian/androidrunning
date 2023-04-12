@@ -92,7 +92,6 @@ data class RunLocation(
     val latitude: Double = 48.23,
     val longitude: Double = 22.56,
     val accuracy: Float = 20f,
-    val altitude: Double = 202.5,
     val speed: Float = 20.9f,
     val speedAccuracy: Float = 1.2f,
 ) : Parcelable
@@ -103,7 +102,6 @@ fun Location.toRunLocation(timestamp: LocalDateTime = LocalDateTime.now()): RunL
         latitude,
         longitude,
         accuracy,
-        altitude,
         speed,
         speedAccuracyMetersPerSecond,
     )
@@ -121,7 +119,6 @@ fun RunLocation.toLocation(): Location =
     Location("").apply {
         latitude = this@toLocation.latitude
         longitude = this@toLocation.longitude
-        altitude = this@toLocation.altitude
         speed = this@toLocation.speed
         accuracy = this@toLocation.accuracy
         speedAccuracyMetersPerSecond = this@toLocation.speedAccuracy

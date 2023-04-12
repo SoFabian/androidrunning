@@ -42,7 +42,6 @@ fun LocationEntity.toRunLocation() =
         latitude = latitude,
         longitude = longitude,
         accuracy = accuracy,
-        altitude = altitude,
         speed = speed,
         speedAccuracy = speedAccuracy,
     )

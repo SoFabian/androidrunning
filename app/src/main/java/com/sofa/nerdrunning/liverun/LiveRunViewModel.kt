@@ -6,6 +6,8 @@ import com.sofa.nerdrunning.finishedrun.FinishedRun
 import com.sofa.nerdrunning.log.logDebug
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOf
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
@@ -16,12 +18,15 @@ class LiveRunViewModel @Inject constructor(
 ) : ViewModel() {
 
     fun startLiveRun() = liveRunService.start()
-    fun finishLiveRun(): FinishedRun = liveRunService.finish()
+    fun finishLiveRun() = liveRunService.finish { _finishedRunFlow.value = it}
     fun cancelLiveRun() = liveRunService.cancel()
     fun unbindLiveRun() = liveRunService.unbind()
 
     private var liveRunFlow: AtomicReference<Flow<LiveRun>> = AtomicReference(null)
     val liveRunServiceBoundFlow = liveRunService.boundFlow
+
+    private val _finishedRunFlow = MutableStateFlow<FinishedRun?>(null)
+    val finishedRunFlow = _finishedRunFlow.asStateFlow()
 
     fun liveRunFlow(): Flow<LiveRun> {
         if (liveRunFlow.get() == null) {

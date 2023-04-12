@@ -11,6 +11,7 @@ import android.os.IBinder
 import android.os.VibrationEffect
 import android.os.Vibrator
 import com.sofa.nerdrunning.R
+import com.sofa.nerdrunning.elevation.Elevations
 import com.sofa.nerdrunning.finishedrun.FinishedRun
 import com.sofa.nerdrunning.images.StaticMapsImageRetriever
 import com.sofa.nerdrunning.log.logDebug
@@ -38,6 +39,9 @@ class LiveRunService : Service() {
 
     @Inject
     lateinit var staticMapsImageRetriever: StaticMapsImageRetriever
+
+    @Inject
+    lateinit var elevations: Elevations
 
     private val binder = LiveRunBinder()
     private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
@@ -156,17 +160,19 @@ class LiveRunService : Service() {
         intervalRequestFlow.tryEmit(nextIntervalTarget)
     }
 
-    fun finish(): FinishedRun {
+    fun finish(finishedCallback: (FinishedRun) -> Unit) {
         logDebug("LiveRunService", "finish")
         val liveRun = liveRunFlow.stop()
-        val finishedRun = liveRun.finish()
         serviceScope.launch {
+            val latLngs = liveRun.locations.map { it.toLatLng() }
+            val elevationsMap = elevations.getElevationsForLocations(latLngs)
+            val finishedRun = liveRun.finish(elevationsMap)
+            finishedCallback(finishedRun)
             val runId = runRepository.insert(finishedRun)
-            staticMapsImageRetriever.loadAndPersist(runId, finishedRun.locations)
             logDebug("LiveRunService", "persist run ID $runId")
+            staticMapsImageRetriever.loadAndPersist(runId, finishedRun.locations)
             stopService()
         }
-        return finishedRun
     }
 
     fun cancel() {

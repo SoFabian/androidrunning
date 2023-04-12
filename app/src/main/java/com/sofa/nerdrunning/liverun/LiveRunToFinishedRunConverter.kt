@@ -1,18 +1,19 @@
 package com.sofa.nerdrunning.liverun
 
 import com.google.maps.android.PolyUtil
+import com.sofa.nerdrunning.elevation.LocationToElevationMap
 import com.sofa.nerdrunning.finishedrun.FinishedRun
 import com.sofa.nerdrunning.finishedrun.FinishedRunInterval
 import java.time.Duration
 
-fun LiveRun.finish(): FinishedRun {
+fun LiveRun.finish(elevations: LocationToElevationMap): FinishedRun {
     var currentDistanceInRun = 0
     var currentLocationIndex = 0
     val finishedIntervals = MutableList(intervals.size + 1) { index ->
         val liveInterval =
             intervals.getOrElse(index) { currentInterval.copy(end = locations.lastOrNull()) }
         val locationsOfInterval = locationsOfInterval(currentLocationIndex, liveInterval)
-        val altitudeUpDown = computeAltitudeUpDown(locationsOfInterval)
+        val altitudeUpDown = computeAltitudeUpDown(locationsOfInterval, elevations)
         val finishedInterval = liveInterval.finish(currentDistanceInRun, altitudeUpDown)
         currentDistanceInRun += finishedInterval.distance
         currentLocationIndex += locationsOfInterval.size
@@ -64,21 +65,27 @@ private fun LiveRun.locationsOfInterval(
 ): List<RunLocation> = locations.drop(startLocationIndex)
     .takeWhile { loc -> liveInterval.end == null || loc.timestamp < liveInterval.end.timestamp }
 
-private fun computeAltitudeUpDown(locations: List<RunLocation>): AltitudeUpDown =
-    locations.map(RunLocation::altitude)
-        .chunked(10).map(Iterable<Double>::average)
-        .foldIndexed(AltitudeUpDown()) { index, acc, altitude ->
+private fun computeAltitudeUpDown(
+    locations: List<RunLocation>,
+    elevations: LocationToElevationMap,
+): AltitudeUpDown {
+    val latLngs = locations.map { l -> l.toLatLng() }
+    return latLngs.asSequence()
+        .mapNotNull { l -> elevations[l] }
+        .foldIndexed(AltitudeUpDown()) { index, acc, elevation ->
             if (index == 0) {
                 acc
             } else {
-                val diff = altitude.minus(locations[index - 1].altitude)
+                val prevElevation = elevations[latLngs[index - 1]]
+                val diff = if (prevElevation != null) elevation.minus(prevElevation) else 0
                 when {
                     diff > 0 -> acc.copy(metresUp = acc.metresUp + diff)
-                    diff < 0 -> acc.copy(metresDown = acc.metresDown + diff)
+                    diff < 0 -> acc.copy(metresDown = acc.metresDown - diff)
                     else -> acc
                 }
             }
         }
+}
 
 private fun computeAltitudeUpDownFromIntervals(intervals: List<FinishedRunInterval>): AltitudeUpDown =
     intervals.fold(AltitudeUpDown()) { acc, interval ->
